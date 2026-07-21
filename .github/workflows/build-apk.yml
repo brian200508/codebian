@@ -95,7 +95,7 @@ jobs:
         shell: pwsh
         run: |
           $task = if ("${{ inputs.build_type }}" -eq "release") { "assembleRelease" } else { "assembleDebug" }
-          gradle $task --no-daemon
+          gradle $task --no-daemon --stacktrace
 
       # No release signing config exists yet (see README) -- a "release"
       # build here is unsigned and for inspection/testing only, not for
