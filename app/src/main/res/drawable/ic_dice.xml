@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Generate random value" dice glyph, shown as the start icon on the
+     SSH/MCP/code-server password-or-key fields (see dialog_settings.xml):
+     tapping it re-rolls that field's secret, same UX pattern as KeePassDX's
+     password-generator dice button. Tinted at runtime via
+     app:startIconTint / android:tint through ?attr/colorKeyFg so it matches
+     the rest of the dialog's theme-aware icon color. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorKeyFg">
+    <path
+        android:pathData="M5,3 L19,3 A2,2 0 0,1 21,5 L21,19 A2,2 0 0,1 19,21 L5,21 A2,2 0 0,1 3,19 L3,5 A2,2 0 0,1 5,3 Z"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.6"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M7.5,7.5m-1.3,0a1.3,1.3 0,1 1,2.6 0a1.3,1.3 0,1 1,-2.6 0"
+        android:fillColor="#FF000000" />
+    <path
+        android:pathData="M16.5,7.5m-1.3,0a1.3,1.3 0,1 1,2.6 0a1.3,1.3 0,1 1,-2.6 0"
+        android:fillColor="#FF000000" />
+    <path
+        android:pathData="M12,12m-1.3,0a1.3,1.3 0,1 1,2.6 0a1.3,1.3 0,1 1,-2.6 0"
+        android:fillColor="#FF000000" />
+    <path
+        android:pathData="M7.5,16.5m-1.3,0a1.3,1.3 0,1 1,2.6 0a1.3,1.3 0,1 1,-2.6 0"
+        android:fillColor="#FF000000" />
+    <path
+        android:pathData="M16.5,16.5m-1.3,0a1.3,1.3 0,1 1,2.6 0a1.3,1.3 0,1 1,-2.6 0"
+        android:fillColor="#FF000000" />
+</vector>

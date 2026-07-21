@@ -1,0 +1,10 @@
+<resources>
+    <!-- Light theme palette (default, values/ = notnight). The dark palette
+         lives in values-night/colors.xml with identical color names so the
+         existing Theme.MaterialComponents.DayNight theme parent switches
+         automatically with the system setting, no code changes needed. -->
+    <color name="key_bar_bg">#f2f2f2</color>
+    <color name="key_bg">#e0e0e0</color>
+    <color name="key_bg_active">#0e639c</color>
+    <color name="key_fg">#1e1e1e</color>
+</resources>

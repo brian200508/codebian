@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive-icon foreground: an original code-brackets glyph in editor-blue
+  tones, evoking the code-server/VS Code editing experience this app provides.
+  Deliberately NOT a reproduction of the VS Code product mark, the Debian swirl,
+  or the Termux logo (all trademarks of their respective projects); this app
+  is an unofficial, unaffiliated helper and must not imply endorsement.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- "<" and ">" code-tag brackets -->
+    <path
+        android:pathData="M46,34 L28,54 L46,74 M62,34 L80,54 L62,74"
+        android:strokeWidth="10"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="28"
+                android:startY="34"
+                android:endX="80"
+                android:endY="74">
+                <item android:offset="0.0" android:color="#1F9CF0" />
+                <item android:offset="1.0" android:color="#0065A9" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- "/" slash, matching the code-server/editor accent -->
+    <path
+        android:pathData="M58,78 L74,30"
+        android:strokeColor="#3FA9F5"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+</vector>

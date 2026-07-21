@@ -1,0 +1,9 @@
+<resources>
+    <!-- Dark theme palette (values-night/), matching CoDebian's original
+         fixed-dark look. Same color names as values/colors.xml so the
+         DayNight theme parent picks the right one automatically. -->
+    <color name="key_bar_bg">#1e1e1e</color>
+    <color name="key_bg">#333333</color>
+    <color name="key_bg_active">#0e639c</color>
+    <color name="key_fg">#e0e0e0</color>
+</resources>

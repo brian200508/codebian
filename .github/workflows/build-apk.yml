@@ -1,0 +1,83 @@
+name: Build APK
+
+# Manually triggered only ("user toggled") -- never runs on push/PR, so it
+# can't accidentally build/publish anything from an in-progress commit.
+# Trigger it from the Actions tab -> "Build APK" -> "Run workflow".
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Build variant"
+        required: true
+        default: debug
+        type: choice
+        options:
+          - debug
+          - release
+
+jobs:
+  build:
+    # windows-latest, not ubuntu-latest: scripts/fetch-assets.ps1 relies on
+    # Windows' bundled tar.exe (bsdtar) reading a .deb as an `ar` archive and
+    # extracting the nested .tar.xz directly -- GNU tar on Linux runners
+    # can't do either without extra tooling, so this keeps CI identical to
+    # the verified local build.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        shell: pwsh
+        run: |
+          # android-actions/setup-android does not auto-accept licenses, and
+          # `yes | sdkmanager` isn't available on this Windows/pwsh runner --
+          # feed enough "y" answers via stdin instead (one per license file).
+          $answers = ("y`n" * 20)
+          $answers | sdkmanager --licenses
+
+      - name: Install required SDK platform/build-tools
+        shell: pwsh
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" | Out-Null
+
+      - name: Write local.properties (points at the CI-provisioned SDK)
+        shell: pwsh
+        run: |
+          $sdkDir = $env:ANDROID_SDK_ROOT -replace '\\', '/'
+          "sdk.dir=$sdkDir" | Out-File -FilePath local.properties -Encoding utf8 -NoNewline
+
+      - name: Fetch proot binaries (jniLibs)
+        shell: pwsh
+        run: ./scripts/fetch-assets.ps1
+
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Build APK
+        shell: pwsh
+        run: |
+          $task = if ("${{ inputs.build_type }}" -eq "release") { "assembleRelease" } else { "assembleDebug" }
+          gradle $task --no-daemon
+
+      # No release signing config exists yet (see README) -- a "release"
+      # build here is unsigned and for inspection/testing only, not for
+      # distribution, until a signing config is added.
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codebian-${{ inputs.build_type }}-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fixed dark translucent circle regardless of app/system theme, matching
+     the convention of other Android floating overlay controls (e.g. the
+     accessibility button, screen-recorder controls) which stay legible over
+     arbitrary content underneath; deliberately NOT theme-following since
+     it must stay visible over the WebView's own page content of any color. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#CC1E1E1E" />
+</shape>

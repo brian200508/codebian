@@ -1,0 +1,10 @@
+<resources>
+    <!-- Custom theme attributes for the extra-keys bar, so its colors can be
+         swapped at runtime (see ThemeOverlay.CoDebian.DynamicWallpaper.* in
+         values-v31/theme_overlay_dynamic.xml) without touching any Kotlin
+         drawable/color lookups beyond a single themeColor() helper. -->
+    <attr name="colorKeyBarBg" format="color" />
+    <attr name="colorKeyBg" format="color" />
+    <attr name="colorKeyBgActive" format="color" />
+    <attr name="colorKeyFg" format="color" />
+</resources>

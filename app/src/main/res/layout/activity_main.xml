@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Outer FrameLayout exists solely so the floating menu button can be
+     freely dragged and positioned on top of everything else (WebView, key
+     bar, status overlay); it is the single persistent entry point for
+     Hide/Show keys bar, Fullscreen, and keys-bar size, and must remain
+     reachable even when the user has hidden the key bar and/or system bars. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="?attr/colorKeyBarBg">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <dev.codebian.app.CodebianWebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/statusOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="?attr/colorKeyBarBg">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="?attr/colorKeyFg"
+                    android:text="@string/status_bootstrapping" />
+
+                <!-- Step-by-step bootstrap checklist (container/code-server/
+                     git/Node.js/Python), populated and shown only during the
+                     initial bootstrap by MainActivity.renderBootstrapSteps();
+                     hidden the rest of the time (e.g. during a later
+                     in-place "Update code-server" run, which isn't a
+                     multi-step process). -->
+                <TextView
+                    android:id="@+id/bootstrapStepsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textColor="?attr/colorKeyFg"
+                    android:textSize="13sp"
+                    android:gravity="start"
+                    android:lineSpacingExtra="4dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/retryConsentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/consent_retry"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Extra-keys row, Termux-style: sticky CTRL/ALT toggles plus one-shot
+             ESC/TAB/arrow/nav buttons. Placed as the LAST child of this vertical
+             LinearLayout (below the WebView) so it floats directly above the
+             soft keyboard. NOTE: windowSoftInputMode="adjustResize" alone is NOT
+             sufficient on Android 15+ (targetSdk 35) because edge-to-edge is
+             enforced by default, so the system draws the IME as an overlay rather
+             than truly shrinking the window, so MainActivity manually applies
+             the IME WindowInsets as bottom padding on this scroll view (see
+             MainActivity.setupExtraKeysBarInsets()). When the keyboard is hidden
+             it simply sits at the bottom of the screen, still available for
+             arrow key/ESC navigation without needing to summon the keyboard
+             first. -->
+        <HorizontalScrollView
+            android:id="@+id/keyBarScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorKeyBarBg"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/extraKeysBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="6dp" />
+
+        </HorizontalScrollView>
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/floatingMenuButton"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:background="@drawable/floating_menu_button_bg"
+        android:src="@drawable/ic_floating_menu"
+        android:contentDescription="@string/floating_menu_content_description"
+        android:tint="#FFFFFF"
+        android:elevation="8dp"
+        android:padding="10dp" />
+
+</FrameLayout>
+

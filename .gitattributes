@@ -1,0 +1,17 @@
+# Enforce Unix (LF) line endings for shell scripts, regardless of the
+# platform/editor that created or checked them out -- a script with CRLF
+# line endings breaks inside the Debian rootfs (bad interpreter / stray \r
+# at the end of "#!/bin/bash" or after a line-continuation backslash).
+*.sh text eol=lf
+
+# Kotlin/Gradle sources: keep LF too, so diffs stay clean regardless of
+# which OS a contributor builds on.
+*.kt text eol=lf
+*.kts text eol=lf
+
+# Windows-only helper scripts are fine with their native CRLF.
+*.ps1 text eol=crlf
+
+# GitHub Actions workflows: keep LF, the conventional/expected format.
+*.yml text eol=lf
+*.yaml text eol=lf

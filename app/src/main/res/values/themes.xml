@@ -1,0 +1,94 @@
+<resources>
+    <style name="Theme.CoDebian" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/key_bg_active</item>
+        <item name="android:windowBackground">@color/key_bar_bg</item>
+        <!-- Static defaults for LIGHT/DARK/SYSTEM theme modes (day/night
+             switch handled entirely by values-night/colors.xml, same as
+             before). The *_WALLPAPER modes override these four at runtime
+             via ThemeOverlay.CoDebian.DynamicWallpaper.* on API 31+. -->
+        <item name="colorKeyBarBg">@color/key_bar_bg</item>
+        <item name="colorKeyBg">@color/key_bg</item>
+        <item name="colorKeyBgActive">@color/key_bg_active</item>
+        <item name="colorKeyFg">@color/key_fg</item>
+    </style>
+
+    <!-- Dialog action buttons (Settings dialog's Default/Revert/Cancel/Save,
+         Copy command/Copy password/Open Termux, and the Termux install
+         AlertDialog): plain flat text alone (Widget.MaterialComponents.
+         Button.TextButton) used colorPrimary for text, @color/key_bg_active
+         (#0e639c), which only has ~2.6:1 contrast against the dark-mode
+         dialog background (#1e1e1e), well under WCAG AA's 4.5:1 minimum
+         (confirmed by the user: "blue font contrast is too weak on the
+         dark grey background"). colorKeyFg is the app's existing,
+         already high-contrast text token (key_fg #1e1e1e on #f2f2f2 light,
+         #e0e0e0 on #1e1e1e dark): reused below for both text and border.
+
+         Modern "outlined" look: a thin 1dp rounded-rectangle border plus
+         text in colorKeyFg keeps the same accessible contrast fix as
+         before, while giving buttons a visible, tappable outline instead
+         of looking like plain unbordered text. -->
+    <style name="Widget.CoDebian.Button.DialogAction" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">?attr/colorKeyFg</item>
+        <item name="strokeColor">?attr/colorKeyFg</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="rippleColor">?attr/colorKeyBgActive</item>
+    </style>
+
+    <!-- Same outlined look, sized for an AlertDialog's button bar
+         (Widget.MaterialComponents.Button.OutlinedButton's default min
+         width/padding is too wide for 2-3 buttons sharing a dialog's
+         button bar; .Dialog.Flush style trims that down to fit). -->
+    <style name="Widget.CoDebian.Button.DialogAction.AlertDialog" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">?attr/colorKeyFg</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="strokeColor">?attr/colorKeyFg</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="rippleColor">?attr/colorKeyBgActive</item>
+        <item name="android:insetTop">2dp</item>
+        <item name="android:insetBottom">2dp</item>
+    </style>
+
+    <!-- Applied to every AlertDialog we build (currently: the Termux
+         install prompt) so its buttons pick up the same accessible,
+         outlined look as the rest of the app instead of the platform's
+         default flat, low-contrast blue text links. -->
+    <style name="ThemeOverlay.CoDebian.AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.CoDebian.Button.DialogAction.AlertDialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.CoDebian.Button.DialogAction.AlertDialog</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.CoDebian.Button.DialogAction.AlertDialog</item>
+    </style>
+    <!-- Compact variant of the outlined dialog-action button for the
+         Default/Revert/Cancel/Save row: four of these share one row width,
+         so minWidth/padding must be trimmed down from the (wider) default
+         Material outlined-button metrics or "Save" gets clipped off the
+         right edge on typical phone widths. -->
+    <!-- Remote Access tabs (SSH/SFTP, MCP, Code Server): Material's default
+         TabLayout uses colorPrimary (@color/key_bg_active, #0e639c) for both
+         the selected tab's text and indicator, which is the same low-contrast
+         dark-blue-on-dark-grey combination already fixed for dialog buttons
+         above (confirmed by the user: hard to read which tab is selected in
+         dark mode). Reuses colorKeyFg for the selected tab's text and
+         indicator so it is always clearly legible against the dialog
+         background in every theme mode; unselected tabs keep Material's
+         default (unemphasized) tab text color. -->
+    <style name="Widget.CoDebian.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabSelectedTextColor">?attr/colorKeyFg</item>
+        <item name="tabIndicatorColor">?attr/colorKeyFg</item>
+    </style>
+
+    <style name="Widget.CoDebian.Button.DialogAction.Compact">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetTop">2dp</item>
+        <item name="android:insetBottom">2dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+</resources>

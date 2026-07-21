@@ -1,0 +1,171 @@
+<resources>
+    <string name="app_name">CoDebian</string>
+    <string name="status_bootstrapping">Setting up Debian + code-server\u2026</string>
+    <string name="status_ready">Ready</string>
+
+    <string name="consent_title">Set up your Linux environment</string>
+    <string name="consent_message">CoDebian is a developer tool that runs your own Debian Linux
+        environment and the code-server editor entirely on this device.\n\nTo do this, it will:
+        \n\n\u2022 Download a standard Debian (trixie) userspace image from Docker Hub\n\u2022 Run
+        it in an unprivileged, app-sandboxed container (via proot) -- no root required\n\u2022
+        Install and start code-server, bound only to 127.0.0.1 on this device (never exposed on
+        your network)\n\nNothing you do inside this Linux environment changes CoDebian\'s own app
+        code -- it only affects files inside your private sandbox, which you fully control and can
+        reset at any time. No data leaves your device.\n\nThis download happens once and requires
+        network access.</string>
+    <string name="consent_accept">Set Up Linux Environment</string>
+    <string name="consent_decline">Not Now</string>
+    <string name="consent_declined_message">CoDebian needs your consent to download and run the
+        Linux environment before it can start.</string>
+    <string name="consent_retry">Retry</string>
+
+    <string name="floating_menu_content_description">CoDebian menu</string>
+    <string name="auth_popup_close_content_description">Close authentication window</string>
+    <string name="menu_hide_keys_bar">Hide keys bar</string>
+    <string name="menu_show_keys_bar">Show keys bar</string>
+    <string name="menu_enter_fullscreen">Enter fullscreen</string>
+    <string name="menu_exit_fullscreen">Exit fullscreen</string>
+    <string name="menu_keys_size">Keys size: %1$s</string>
+    <string name="keys_size_small_minus">Small\u2212</string>
+    <string name="keys_size_small">Small</string>
+    <string name="keys_size_medium">Medium</string>
+    <string name="keys_size_medium_plus">Medium+</string>
+    <string name="keys_size_large">Large</string>
+    <string name="menu_theme_mode">Theme: %1$s</string>
+    <string name="theme_mode_dialog_title">Choose theme</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_dark_wallpaper">Dark (wallpaper-style)</string>
+    <string name="theme_mode_light_wallpaper">Light (wallpaper-style)</string>
+    <string name="theme_mode_system_wallpaper">System (wallpaper-style)</string>
+
+    <string name="settings_dialog_title">CoDebian Settings</string>
+    <string name="settings_section_display">Display</string>
+    <string name="settings_section_keys_bar">Keys Bar</string>
+    <string name="settings_label_theme">Theme</string>
+    <string name="settings_label_fullscreen">Fullscreen</string>
+    <string name="settings_label_show_keys_bar">Show keys bar</string>
+    <string name="settings_label_height">Height</string>
+    <string name="settings_label_key_width">Key width</string>
+    <string name="settings_section_remote_access">Remote Access</string>
+    <string name="settings_label_ssh_server">SSH / SFTP server</string>
+    <string name="settings_label_ssh_port">SSH port</string>
+    <string name="settings_label_sftp_port">SFTP port</string>
+    <string name="settings_btn_copy_ssh_command">Copy SSH command</string>
+    <string name="settings_btn_copy_sftp_command">Copy SFTP command</string>
+    <string name="settings_btn_copy_ssh_password">Copy password</string>
+    <string name="settings_label_ssh_custom_password">Custom password (optional)</string>
+    <string name="generate_ssh_password_content_description">Generate random password</string>
+    <string name="generate_confirm_title">Generate a new random value?</string>
+    <string name="generate_confirm_positive">Generate</string>
+    <string name="generate_confirm_negative">Cancel</string>
+    <string name="generate_ssh_password_confirm_message">This replaces the current SSH/SFTP password. Any already-connected client using the old password will need the new one.</string>
+    <string name="ssh_password_generated_toast">Random SSH/SFTP password generated</string>
+    <string name="ssh_copied_command_toast">SSH command copied</string>
+    <string name="sftp_copied_command_toast">SFTP command copied</string>
+    <string name="ssh_copied_password_toast">SSH password copied</string>
+    <string name="ssh_connection_info_format">ssh %1$s@127.0.0.1 -p %2$d</string>
+    <string name="sftp_connection_info_format">sftp -P %2$d %1$s@127.0.0.1</string>
+    <string name="ssh_reset_command_format">ssh-keygen -R "[127.0.0.1]:%1$d"</string>
+    <string name="ssh_copied_reset_command_toast">Reset command copied</string>
+    <string name="settings_btn_copy_ssh_reset_command">Copy reset command</string>
+    <string name="settings_ssh_reset_command_caption">If Termux refuses to reconnect after reinstalling CoDebian ("REMOTE HOST IDENTIFICATION HAS CHANGED"), run this in Termux once to clear the old fingerprint, then reconnect. SFTP uses the same host keys, so the same reset command applies to it too.</string>
+
+    <string name="settings_section_exposure">File Exposure</string>
+    <string name="settings_tab_ssh">SSH / SFTP</string>
+    <string name="settings_tab_mcp">MCP</string>
+    <string name="settings_tab_code_server">Code Server</string>
+    <string name="settings_exposure_caption">Which files the MCP filesystem server (below) can see. Home directory and the live shared folder are always up to date; the SAF workspace folder only reflects its last manual sync. Include/exclude use simple glob patterns (one per line, e.g. "src/**", "*.md") and only apply to the home directory and workspace sources.</string>
+    <string name="settings_label_exposure_home">Home directory (~)</string>
+    <string name="settings_label_exposure_workspace">SAF workspace folder</string>
+    <string name="settings_label_exposure_shared">Live shared folder (Android/data/…/files/shared)</string>
+    <string name="settings_label_exposure_include">Include patterns (optional)</string>
+    <string name="settings_label_exposure_exclude">Exclude patterns (optional)</string>
+    <string name="settings_btn_refresh_exposure">Refresh Exposure</string>
+    <string name="exposure_refreshed_toast">Exposure refreshed</string>
+    <string name="exposure_none_enabled_toast">Enable at least one source above for MCP to serve anything</string>
+
+    <string name="settings_section_mcp">MCP Filesystem Server</string>
+    <string name="settings_mcp_caption">Bridges the @modelcontextprotocol/server-filesystem stdio server to HTTP/SSE via mcp-proxy, so an external MCP client can reach it over the network. Loopback-only, authenticated with an API key (X-API-Key header).</string>
+    <string name="settings_label_mcp_server">MCP server</string>
+    <string name="settings_label_mcp_port">MCP port</string>
+    <string name="settings_btn_copy_mcp_url">Copy URL</string>
+    <string name="settings_label_mcp_custom_key">Custom API key (optional)</string>
+    <string name="generate_mcp_key_content_description">Generate random API key</string>
+    <string name="generate_mcp_key_confirm_message">This replaces the current MCP API key. Any already-connected MCP client using the old key will need the new one.</string>
+    <string name="settings_btn_copy_mcp_key">Copy API key</string>
+    <string name="mcp_key_generated_toast">Random MCP API key generated</string>
+    <string name="mcp_copied_url_toast">MCP URL copied</string>
+    <string name="mcp_copied_key_toast">MCP API key copied</string>
+    <string name="mcp_connection_info_format">http://127.0.0.1:%1$d/sse</string>
+    <string name="settings_btn_open_termux">Open Termux</string>
+
+    <string name="settings_section_code_server">Code Server</string>
+    <string name="settings_code_server_caption">Changing the port or enabling a password restarts code-server and reloads this WebView -- keep the defaults unless you need to reach code-server from outside this WebView (e.g. via `adb forward` or an SSH tunnel).</string>
+    <string name="settings_label_code_server_port">Port</string>
+    <string name="settings_label_code_server_auth">Require password</string>
+    <string name="settings_btn_copy_code_server_url">Copy URL</string>
+    <string name="settings_label_code_server_custom_password">Custom password (optional)</string>
+    <string name="generate_code_server_password_content_description">Generate random password</string>
+    <string name="generate_code_server_password_confirm_message">This replaces the current code-server password. If "Require password" is enabled, you\'ll need the new one to log back in.</string>
+    <string name="settings_btn_copy_code_server_password">Copy password</string>
+    <string name="code_server_password_generated_toast">Random code-server password generated</string>
+    <string name="code_server_copied_url_toast">Code-server URL copied</string>
+    <string name="code_server_copied_password_toast">Code-server password copied</string>
+    <string name="code_server_connection_info_format">http://127.0.0.1:%1$d/</string>
+    <string name="settings_section_backup">Backup</string>
+    <string name="settings_backup_caption">Export all settings (theme, keys bar, SSH server config) to a JSON file, or import a previously exported one. The SSH password is encrypted with a passphrase you choose -- keep it safe, it cannot be recovered without it.</string>
+    <string name="settings_btn_export_config">Export config…</string>
+    <string name="settings_btn_import_config">Import config…</string>
+    <string name="config_backup_export_passphrase_title">Choose a passphrase</string>
+    <string name="config_backup_import_passphrase_title">Enter passphrase</string>
+    <string name="config_backup_passphrase_message">Used to encrypt/decrypt the SSH password inside the exported file. Remember it -- it is not stored anywhere.</string>
+    <string name="config_backup_passphrase_ok">OK</string>
+    <string name="config_backup_export_success_toast">Config exported</string>
+    <string name="config_backup_export_failed_toast">Export failed: %1$s</string>
+    <string name="config_backup_import_success_toast">Config imported</string>
+    <string name="config_backup_import_failed_toast">Import failed: wrong passphrase or corrupted file (%1$s)</string>
+    <string name="settings_section_environment">Environment</string>
+    <string name="settings_environment_bundled_tools_caption">Bundled: git, Node.js LTS, Python 3 (installed automatically on first launch)</string>
+    <string name="settings_btn_update_code_server">Update code-server</string>
+    <string name="settings_environment_update_caption">code-server has no official apt repository -- it is installed from its latest release, so use this button to fetch updates instead of apt upgrade.</string>
+    <string name="code_server_update_started_toast">Updating code-server\u2026</string>
+    <string name="settings_label_wake_lock">Keep CPU awake</string>
+    <string name="settings_wake_lock_caption">Prevents Android from suspending the app while the screen is off, so code-server/SSH keep responding to requests from other devices. Uses extra battery while enabled.</string>
+    <string name="quick_menu_termux">Termux</string>
+    <string name="quick_menu_ssh_password">SSH Password</string>
+    <string name="quick_menu_ssh_command">SSH Command</string>
+    <string name="quick_menu_fullscreen">Fullscreen</string>
+    <string name="quick_menu_wake_lock">Wake Lock</string>
+    <string name="quick_menu_files">Files</string>
+    <string name="quick_menu_pick_workspace_folder">Pick Workspace Folder\u2026</string>
+    <string name="quick_menu_sync_workspace_back">Sync Workspace Back</string>
+    <string name="quick_menu_config">Config</string>
+    <string name="quick_menu_exit">Exit</string>
+    <string name="saf_workspace_linked_toast">Workspace folder linked and copied to ~/workspace</string>
+    <string name="saf_workspace_link_failed_toast">Could not link workspace folder: %1$s</string>
+    <string name="saf_sync_no_folder_toast">Pick a workspace folder first</string>
+    <string name="saf_sync_empty_workspace_toast">Nothing to sync -- ~/workspace is empty</string>
+    <string name="saf_sync_success_toast">Workspace synced back to folder</string>
+    <string name="saf_sync_failed_toast">Sync failed: %1$s</string>
+    <string name="exit_confirm_title">Exit CoDebian?</string>
+    <string name="exit_confirm_message">This stops code-server and the SSH server (if running) and closes the app. Your files and settings are kept.</string>
+    <string name="exit_confirm_positive">Exit</string>
+    <string name="exit_confirm_negative">Cancel</string>
+    <string name="notification_action_wake_lock_on">Wake lock: on</string>
+    <string name="notification_action_wake_lock_off">Wake lock: off</string>
+    <string name="notification_action_exit">Exit</string>
+    <string name="termux_install_dialog_title">Termux not installed</string>
+    <string name="termux_install_dialog_message">Termux is needed to open a terminal and paste the SSH command. Install it, then CoDebian will open it automatically once installed.</string>
+    <string name="termux_install_play_store">Install from Google Play</string>
+    <string name="termux_install_github">Download from GitHub</string>
+    <string name="settings_btn_default">Default</string>
+    <string name="settings_btn_revert">Revert</string>
+    <string name="settings_btn_cancel">Cancel</string>
+    <string name="settings_btn_save">Save</string>
+    <string name="key_width_0_25">0.25</string>
+    <string name="key_width_0_50">0.50</string>
+    <string name="key_width_0_75">0.75</string>
+    <string name="key_width_1_00">1.00</string>
+</resources>

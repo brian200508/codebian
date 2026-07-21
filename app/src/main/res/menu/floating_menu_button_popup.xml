@@ -1,0 +1,44 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Primary entry point for the floating menu button (both a normal
+         tap and a long-press open this same popup; see
+         FloatingMenuButton.showQuickActionsMenu()): the most frequently
+         repeated one-tap actions (Termux/SSH command/Fullscreen/Wake
+         lock/Exit), a "Files" submenu for the
+         folder-workspace-sync actions (see SafActions), plus a "Config"
+         item that opens the full Settings dialog for everything else
+         (theme, keys bar, SSH port/password, etc.). SSH Password was
+         dropped per the user's request now that it can be a custom
+         user-chosen value (change it via Config > Remote Access instead). -->
+    <item
+        android:id="@+id/quickMenuTermux"
+        android:title="@string/quick_menu_termux" />
+    <item
+        android:id="@+id/quickMenuSshCommand"
+        android:title="@string/quick_menu_ssh_command" />
+    <item
+        android:id="@+id/quickMenuFullscreen"
+        android:title="@string/quick_menu_fullscreen"
+        android:checkable="true" />
+    <item
+        android:id="@+id/quickMenuWakeLock"
+        android:title="@string/quick_menu_wake_lock"
+        android:checkable="true" />
+    <item
+        android:id="@+id/quickMenuFiles"
+        android:title="@string/quick_menu_files">
+        <menu>
+            <item
+                android:id="@+id/quickMenuPickWorkspaceFolder"
+                android:title="@string/quick_menu_pick_workspace_folder" />
+            <item
+                android:id="@+id/quickMenuSyncWorkspaceBack"
+                android:title="@string/quick_menu_sync_workspace_back" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/quickMenuConfig"
+        android:title="@string/quick_menu_config" />
+    <item
+        android:id="@+id/quickMenuExit"
+        android:title="@string/quick_menu_exit" />
+</menu>

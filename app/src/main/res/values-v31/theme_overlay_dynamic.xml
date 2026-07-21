@@ -1,0 +1,38 @@
+<resources>
+    <!--
+      "Wallpaper-style" theme variants: remap our custom key-bar attrs plus
+      the standard Material color roles (so dialogs/popup menus are covered
+      too, per user request for "full app chrome") onto the system's
+      per-wallpaper Material You palette (@android:color/system_accent1_*,
+      system_neutral1_*, system_neutral2_*). These raw palette resources
+      exist unconditionally on API 31+ regardless of app theme, so applying
+      them via theme.applyStyle(...) at runtime works even though our base
+      theme is Theme.MaterialComponents (not Theme.Material3), without
+      pulling in com.google.android.material's DynamicColors machinery.
+      Only ever applied on API 31+; below that, *_WALLPAPER modes silently
+      fall back to the plain LIGHT/DARK static palette (see MainActivity).
+    -->
+    <style name="ThemeOverlay.CoDebian.DynamicWallpaper.Dark" parent="">
+        <item name="colorKeyBarBg">@android:color/system_neutral1_900</item>
+        <item name="colorKeyBg">@android:color/system_neutral2_800</item>
+        <item name="colorKeyBgActive">@android:color/system_accent1_600</item>
+        <item name="colorKeyFg">@android:color/system_neutral1_50</item>
+        <item name="colorPrimary">@android:color/system_accent1_200</item>
+        <item name="colorSurface">@android:color/system_neutral1_900</item>
+        <item name="colorOnSurface">@android:color/system_neutral1_50</item>
+        <item name="android:windowBackground">@android:color/system_neutral1_900</item>
+        <item name="android:textColorPrimary">@android:color/system_neutral1_50</item>
+    </style>
+
+    <style name="ThemeOverlay.CoDebian.DynamicWallpaper.Light" parent="">
+        <item name="colorKeyBarBg">@android:color/system_neutral1_50</item>
+        <item name="colorKeyBg">@android:color/system_neutral2_100</item>
+        <item name="colorKeyBgActive">@android:color/system_accent1_600</item>
+        <item name="colorKeyFg">@android:color/system_neutral1_900</item>
+        <item name="colorPrimary">@android:color/system_accent1_600</item>
+        <item name="colorSurface">@android:color/system_neutral1_50</item>
+        <item name="colorOnSurface">@android:color/system_neutral1_900</item>
+        <item name="android:windowBackground">@android:color/system_neutral1_50</item>
+        <item name="android:textColorPrimary">@android:color/system_neutral1_900</item>
+    </style>
+</resources>
