@@ -25,7 +25,7 @@
 #>
 
 param(
-    [string]$prootDebUrl = "https://grimler.se/termux/termux-main/pool/main/p/proot/proot_5.1.107.84_aarch64.deb"
+    [string]$prootDebUrl = "https://grimler.se/termux-packages-24/pool/main/p/proot/proot_5.1.107.86_aarch64.deb"
 )
 
 $ErrorActionPreference = "Stop"
