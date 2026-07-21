@@ -37,8 +37,12 @@ $work = Join-Path ([System.IO.Path]::GetTempPath()) ("codebian-proot-" + [Guid]:
 New-Item -ItemType Directory -Path $work -Force | Out-Null
 try {
     $deb = Join-Path $work "proot.deb"
+    
+    # Use curl with retry logic for robust downloads
     Write-Host "Downloading $prootDebUrl ..."
-    Invoke-WebRequest -Uri $prootDebUrl -OutFile $deb
+    curl.exe --fail --location --retry 3 --retry-delay 5 --retry-max-time 60 `
+        -o $deb $prootDebUrl
+    if ($LASTEXITCODE -ne 0) { throw "curl failed to download $prootDebUrl" }
 
     Write-Host "Extracting .deb (ar format) ..."
     tar -xf $deb -C $work
