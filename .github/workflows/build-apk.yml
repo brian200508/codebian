@@ -34,27 +34,52 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
+      - name: Set up Android SDK and install components
         uses: android-actions/setup-android@v3
+        with:
+          components: |
+            platforms;android-35
+            build-tools;35.0.0
+            cmdline-tools;latest
 
-      - name: Accept Android SDK licenses
+      - name: Ensure cmdline-tools path + accept Android SDK licenses
         shell: pwsh
         run: |
-          # android-actions/setup-android does not auto-accept licenses, and
-          # `yes | sdkmanager` isn't available on this Windows/pwsh runner --
-          # feed enough "y" answers via stdin instead (one per license file).
-          $answers = ("y`n" * 20)
-          $answers | sdkmanager --licenses
+          # locate sdkmanager (prefer 'latest', fallback to common locations)
+          $sdkRoot = $env:ANDROID_SDK_ROOT
+          $candidates = @(
+            (Join-Path $sdkRoot 'cmdline-tools\\latest\\bin\\sdkmanager.bat'),
+            (Join-Path $sdkRoot 'cmdline-tools\\16.0\\bin\\sdkmanager.bat'),
+            (Join-Path $sdkRoot 'tools\\bin\\sdkmanager.bat')
+          )
+          $sdk = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $sdk) {
+            Write-Error "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot). Paths checked: $candidates"
+            exit 1
+          }
 
-      - name: Install required SDK platform/build-tools
-        shell: pwsh
-        run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" | Out-Null
+          # install components (retry for transient network/mirror failures)
+          $installArgs = @('platforms;android-35','build-tools;35.0.0')
+          $maxRetries = 3
+          for ($i = 0; $i -lt $maxRetries; $i++) {
+            try {
+              & $sdk --install $installArgs
+              break
+            } catch {
+              Write-Warning "sdkmanager install failed (attempt $($i+1) of $maxRetries): $_"
+              if ($i -eq $maxRetries - 1) { throw }
+              Start-Sleep -Seconds (5 * ($i + 1))
+            }
+          }
+
+          # accept licenses: supply multiple "y" answers to stdin
+          $answers = ("y`n" * 40)  # plenty of "y" answers
+          $answers | & $sdk --licenses
 
       - name: Write local.properties (points at the CI-provisioned SDK)
         shell: pwsh
         run: |
-          $sdkDir = $env:ANDROID_SDK_ROOT -replace '\\', '/'
+          $sdkDir = $env:ANDROID_SDK_ROOT -replace '\\\\', '/'
           "sdk.dir=$sdkDir" | Out-File -FilePath local.properties -Encoding utf8 -NoNewline
 
       - name: Fetch proot binaries (jniLibs)
