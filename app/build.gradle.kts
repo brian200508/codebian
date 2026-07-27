@@ -15,9 +15,20 @@ android {
         versionName = "0.0.1"
     }
 
+    signingConfigs {
+        create("release") {
+            // Debug signing config for unsigned release builds (as per README)
+            storeFile = null
+            storePassword = null
+            keyAlias = null
+            keyPassword = null
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
