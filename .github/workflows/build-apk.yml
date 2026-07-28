@@ -1,108 +1,81 @@
-name: Build APK
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
 
-# Manually triggered only ("user toggled") -- never runs on push/PR, so it
-# can't accidentally build/publish anything from an in-progress commit.
-# Trigger it from the Actions tab -> "Build APK" -> "Run workflow".
-on:
-  workflow_dispatch:
-    inputs:
-      build_type:
-        description: "Build variant"
-        required: true
-        default: debug
-        type: choice
-        options:
-          - debug
-          - release
+  - name: Set up JDK 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: "17"
 
-jobs:
-  build:
-    # windows-latest, not ubuntu-latest: scripts/fetch-assets.ps1 relies on
-    # Windows' bundled tar.exe (bsdtar) reading a .deb as an `ar` archive and
-    # extracting the nested .tar.xz directly -- GNU tar on Linux runners
-    # can't do either without extra tooling, so this keeps CI identical to
-    # the verified local build.
-    runs-on: windows-latest
+  - name: Set up Android SDK and install components
+    uses: android-actions/setup-android@v3
+    with:
+      components: |
+        platforms;android-35
+        build-tools;35.0.0
+        cmdline-tools;latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  - name: Ensure cmdline-tools path + accept Android SDK licenses
+    shell: bash
+    run: |
+      set -euo pipefail
+      sdkRoot="${ANDROID_SDK_ROOT:?}"
+      echo "ANDROID_SDK_ROOT=$sdkRoot"
+      # find sdkmanager (search recursively)
+      sdk="$(find "$sdkRoot" -type f -name sdkmanager -print -quit || true)"
+      if [ -z "$sdk" ]; then
+        echo "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot)" >&2
+        ls -R "$sdkRoot" | sed -n '1,200p'
+        exit 1
+      fi
+      echo "Found sdkmanager at: $sdk"
+      chmod +x "$sdk"
+      installArgs=( "platforms;android-35" "build-tools;35.0.0" )
+      maxRetries=3
+      for i in $(seq 1 $maxRetries); do
+        if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
+          break
+        fi
+        echo "sdkmanager install failed (attempt $i of $maxRetries)"
+        if [ "$i" -eq "$maxRetries" ]; then
+          exit 1
+        fi
+        sleep $((5 * i))
+      done
+      # accept licenses
+      yes | "$sdk" --licenses --sdk_root="$sdkRoot"
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+  - name: Write local.properties (points at the CI-provisioned SDK)
+    shell: bash
+    run: |
+      echo "sdk.dir=${ANDROID_SDK_ROOT}" > local.properties
 
-      - name: Set up Android SDK and install components
-        uses: android-actions/setup-android@v3
-        with:
-          components: |
-            platforms;android-35
-            build-tools;35.0.0
-            cmdline-tools;latest
+  - name: Fetch proot binaries (jniLibs)
+    shell: bash
+    run: |
+      chmod +x ./scripts/fetch-assets.sh
+      ./scripts/fetch-assets.sh
 
-      - name: Ensure cmdline-tools path + accept Android SDK licenses
-        shell: pwsh
-        run: |
-          # locate sdkmanager (prefer 'latest', fallback to common locations)
-          $sdkRoot = $env:ANDROID_SDK_ROOT
-          $candidates = @(
-            (Join-Path $sdkRoot 'cmdline-tools\\latest\\bin\\sdkmanager.bat'),
-            (Join-Path $sdkRoot 'cmdline-tools\\16.0\\bin\\sdkmanager.bat'),
-            (Join-Path $sdkRoot 'tools\\bin\\sdkmanager.bat')
-          )
-          $sdk = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $sdk) {
-            Write-Error "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot). Paths checked: $candidates"
-            exit 1
-          }
+  - name: Set up Gradle 8.11
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: "8.11"
 
-          # install components (retry for transient network/mirror failures)
-          $installArgs = @('platforms;android-35','build-tools;35.0.0')
-          $maxRetries = 3
-          for ($i = 0; $i -lt $maxRetries; $i++) {
-            try {
-              & $sdk --install $installArgs
-              break
-            } catch {
-              Write-Warning "sdkmanager install failed (attempt $($i+1) of $maxRetries): $_"
-              if ($i -eq $maxRetries - 1) { throw }
-              Start-Sleep -Seconds (5 * ($i + 1))
-            }
-          }
+  - name: Build APK
+    shell: bash
+    run: |
+      if [ "${{ inputs.build_type }}" = "release" ]; then
+        task="assembleRelease"
+      else
+        task="assembleDebug"
+      fi
+      ./gradlew "$task" --no-daemon --stacktrace
 
-          # accept licenses: supply multiple "y" answers to stdin
-          $answers = ("y`n" * 40)  # plenty of "y" answers
-          $answers | & $sdk --licenses
-
-      - name: Write local.properties (points at the CI-provisioned SDK)
-        shell: pwsh
-        run: |
-          $sdkDir = $env:ANDROID_SDK_ROOT -replace '\\\\', '/'
-          "sdk.dir=$sdkDir" | Out-File -FilePath local.properties -Encoding utf8 -NoNewline
-
-      - name: Fetch proot binaries (jniLibs)
-        shell: pwsh
-        run: ./scripts/fetch-assets.ps1
-
-      - name: Set up Gradle 8.7
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.11"
-
-      - name: Build APK
-        shell: pwsh
-        run: |
-          $task = if ("${{ inputs.build_type }}" -eq "release") { "assembleRelease" } else { "assembleDebug" }
-          gradle $task --no-daemon --stacktrace
-
-      # No release signing config exists yet (see README) -- a "release"
-      # build here is unsigned and for inspection/testing only, not for
-      # distribution, until a signing config is added.
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: codebian-${{ inputs.build_type }}-apk
-          path: app/build/outputs/apk/**/*.apk
-          if-no-files-found: error
+  - name: Upload APK artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: codebian-${{ inputs.build_type }}-apk
+      path: app/build/outputs/apk/**/*.apk
+      if-no-files-found: error
+  
