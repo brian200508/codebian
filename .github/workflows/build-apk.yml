@@ -18,10 +18,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Repo debug: list files and check for gradlew
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "PWD: $(pwd)"
+          echo "Top-level files:"
+          ls -la
+          echo "Git-tracked gradlew files (if any):"
+          git ls-files | grep -E '(^|/)gradlew$' || true
+
+      - name: Grant execute permission for gradlew if present
+        shell: bash
+        run: |
+          if [ -f ./gradlew ]; then
+            echo "Found root ./gradlew - making executable"
+            chmod +x ./gradlew
+          else
+            echo "./gradlew not found at repo root"
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -36,6 +56,16 @@ jobs:
             platforms;android-35
             build-tools;35.0.0
             cmdline-tools;latest
+
+      - name: Debug Android SDK location
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-<unset>}"
+          if [ -n "${ANDROID_SDK_ROOT:-}" ]; then
+            echo "Listing SDK root (first 200 lines):"
+            ls -R "${ANDROID_SDK_ROOT}" | sed -n '1,200p' || true
+          fi
 
       - name: Ensure cmdline-tools path + accept Android SDK licenses
         shell: bash
@@ -85,13 +115,39 @@ jobs:
 
       - name: Build APK
         shell: bash
+        env:
+          BUILD_TYPE: ${{ inputs.build_type }}
         run: |
-          if [ "${{ inputs.build_type }}" = "release" ]; then
+          set -euo pipefail
+          if [ "${BUILD_TYPE}" = "release" ]; then
             task="assembleRelease"
           else
             task="assembleDebug"
           fi
-          ./gradlew "$task" --no-daemon --stacktrace
+
+          # Determine which Gradle command to run:
+          # 1) prefer ./gradlew at repo root (and ensure executable)
+          # 2) search repo for a gradlew file (subdirectory) and run that
+          # 3) fall back to 'gradle' (provided by gradle/actions/setup-gradle)
+          if [ -x ./gradlew ]; then
+            echo "Using root ./gradlew"
+            GRADLE_CMD="./gradlew"
+          else
+            echo "Root ./gradlew not executable or missing, searching repository..."
+            gpath="$(git ls-files | grep -E '(^|/)gradlew$' | head -n1 || true)"
+            if [ -n "$gpath" ]; then
+              echo "Found gradlew at: $gpath"
+              chmod +x "$gpath"
+              # ensure we run from repository root even if wrapper is in subdir
+              GRADLE_CMD="./$gpath"
+            else
+              echo "No gradlew found in repo; falling back to 'gradle' from setup-gradle"
+              GRADLE_CMD="gradle"
+            fi
+          fi
+
+          echo "Running: $GRADLE_CMD $task"
+          $GRADLE_CMD "$task" --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
