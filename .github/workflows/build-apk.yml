@@ -23,85 +23,85 @@ jobs:
     # can't do either without extra tooling, so this keeps CI identical to
     # the verified local build.
     runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-  - name: Set up JDK 17
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: "17"
+      - name: Set up Android SDK and install components
+        uses: android-actions/setup-android@v3
+        with:
+          components: |
+            platforms;android-35
+            build-tools;35.0.0
+            cmdline-tools;latest
 
-  - name: Set up Android SDK and install components
-    uses: android-actions/setup-android@v3
-    with:
-      components: |
-        platforms;android-35
-        build-tools;35.0.0
-        cmdline-tools;latest
+      - name: Ensure cmdline-tools path + accept Android SDK licenses
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkRoot="${ANDROID_SDK_ROOT:?}"
+          echo "ANDROID_SDK_ROOT=$sdkRoot"
+          # find sdkmanager (search recursively)
+          sdk="$(find "$sdkRoot" -type f -name sdkmanager -print -quit || true)"
+          if [ -z "$sdk" ]; then
+            echo "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot)" >&2
+            ls -R "$sdkRoot" | sed -n '1,200p'
+            exit 1
+          fi
+          echo "Found sdkmanager at: $sdk"
+          chmod +x "$sdk"
+          installArgs=( "platforms;android-35" "build-tools;35.0.0" )
+          maxRetries=3
+          for i in $(seq 1 $maxRetries); do
+            if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
+              break
+            fi
+            echo "sdkmanager install failed (attempt $i of $maxRetries)"
+            if [ "$i" -eq "$maxRetries" ]; then
+              exit 1
+            fi
+            sleep $((5 * i))
+          done
+          # accept licenses
+          yes | "$sdk" --licenses --sdk_root="$sdkRoot"
 
-  - name: Ensure cmdline-tools path + accept Android SDK licenses
-    shell: bash
-    run: |
-      set -euo pipefail
-      sdkRoot="${ANDROID_SDK_ROOT:?}"
-      echo "ANDROID_SDK_ROOT=$sdkRoot"
-      # find sdkmanager (search recursively)
-      sdk="$(find "$sdkRoot" -type f -name sdkmanager -print -quit || true)"
-      if [ -z "$sdk" ]; then
-        echo "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot)" >&2
-        ls -R "$sdkRoot" | sed -n '1,200p'
-        exit 1
-      fi
-      echo "Found sdkmanager at: $sdk"
-      chmod +x "$sdk"
-      installArgs=( "platforms;android-35" "build-tools;35.0.0" )
-      maxRetries=3
-      for i in $(seq 1 $maxRetries); do
-        if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
-          break
-        fi
-        echo "sdkmanager install failed (attempt $i of $maxRetries)"
-        if [ "$i" -eq "$maxRetries" ]; then
-          exit 1
-        fi
-        sleep $((5 * i))
-      done
-      # accept licenses
-      yes | "$sdk" --licenses --sdk_root="$sdkRoot"
+      - name: Write local.properties (points at the CI-provisioned SDK)
+        shell: bash
+        run: |
+          echo "sdk.dir=${ANDROID_SDK_ROOT}" > local.properties
 
-  - name: Write local.properties (points at the CI-provisioned SDK)
-    shell: bash
-    run: |
-      echo "sdk.dir=${ANDROID_SDK_ROOT}" > local.properties
+      - name: Fetch proot binaries (jniLibs)
+        shell: bash
+        run: |
+          chmod +x ./scripts/fetch-assets.sh
+          ./scripts/fetch-assets.sh
 
-  - name: Fetch proot binaries (jniLibs)
-    shell: bash
-    run: |
-      chmod +x ./scripts/fetch-assets.sh
-      ./scripts/fetch-assets.sh
+      - name: Set up Gradle 8.11
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11"
 
-  - name: Set up Gradle 8.11
-    uses: gradle/actions/setup-gradle@v4
-    with:
-      gradle-version: "8.11"
+      - name: Build APK
+        shell: bash
+        run: |
+          if [ "${{ inputs.build_type }}" = "release" ]; then
+            task="assembleRelease"
+          else
+            task="assembleDebug"
+          fi
+          ./gradlew "$task" --no-daemon --stacktrace
 
-  - name: Build APK
-    shell: bash
-    run: |
-      if [ "${{ inputs.build_type }}" = "release" ]; then
-        task="assembleRelease"
-      else
-        task="assembleDebug"
-      fi
-      ./gradlew "$task" --no-daemon --stacktrace
-
-  - name: Upload APK artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: codebian-${{ inputs.build_type }}-apk
-      path: app/build/outputs/apk/**/*.apk
-      if-no-files-found: error
-  
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codebian-${{ inputs.build_type }}-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+      
