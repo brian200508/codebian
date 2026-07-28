@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Repo debug: list files and check for gradlew
+      - name: Repo debug - list files and check for gradlew
         shell: bash
         run: |
           set -euo pipefail
