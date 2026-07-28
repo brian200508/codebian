@@ -1,3 +1,29 @@
+name: Build APK
+
+# Manually triggered only ("user toggled") -- never runs on push/PR, so it
+# can't accidentally build/publish anything from an in-progress commit.
+# Trigger it from the Actions tab -> "Build APK" -> "Run workflow".
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Build variant"
+        required: true
+        default: debug
+        type: choice
+        options:
+          - debug
+          - release
+
+jobs:
+  build:
+    # windows-latest, not ubuntu-latest: scripts/fetch-assets.ps1 relies on
+    # Windows' bundled tar.exe (bsdtar) reading a .deb as an `ar` archive and
+    # extracting the nested .tar.xz directly -- GNU tar on Linux runners
+    # can't do either without extra tooling, so this keeps CI identical to
+    # the verified local build.
+    runs-on: windows-latest
+
 steps:
   - name: Checkout
     uses: actions/checkout@v4
