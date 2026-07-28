@@ -17,12 +17,7 @@ on:
 
 jobs:
   build:
-    # windows-latest, not ubuntu-latest: scripts/fetch-assets.ps1 relies on
-    # Windows' bundled tar.exe (bsdtar) reading a .deb as an `ar` archive and
-    # extracting the nested .tar.xz directly -- GNU tar on Linux runners
-    # can't do either without extra tooling, so this keeps CI identical to
-    # the verified local build.
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
