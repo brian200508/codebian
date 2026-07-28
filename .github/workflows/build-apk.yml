@@ -64,8 +64,8 @@ jobs:
             fi
             sleep $((5 * i))
           done
-          # accept licenses
-          yes | "$sdk" --licenses --sdk_root="$sdkRoot"
+          # accept licenses (avoid failing on yes SIGPIPE) -- write one "y" then stop
+          printf "y\n" | "$sdk" --licenses --sdk_root="$sdkRoot" || true
 
       - name: Write local.properties (points at the CI-provisioned SDK)
         shell: bash
@@ -99,4 +99,3 @@ jobs:
           name: codebian-${{ inputs.build_type }}-apk
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
-      
