@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Usage: scripts/fetch-assets.sh [proot-deb-url]
-prootDebUrl="${1:-https://grimler.se/termux-packages-24/pool/main/p/proot/proot_5.1.107.87_aarch64.deb}"
+prootDebUrl="${1:-https://grimler.se/termux-packages-24/pool/main/p/proot/proot_5.1.107.89_aarch64.deb}"
 jniLibsDir="$(pwd)/app/src/main/jniLibs/arm64-v8a"
 mkdir -p "$jniLibsDir"
 
