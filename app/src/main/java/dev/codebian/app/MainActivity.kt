@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -65,6 +66,14 @@ class MainActivity : AppCompatActivity() {
         )
         floatingMenuButton.setup()
 
+        // Wire the bootstrap logs toggle/button (layout added in a prior commit)
+        binding.btnToggleLogs.setOnClickListener {
+            val container = binding.bootstrapLogContainer
+            val visible = container.visibility == View.VISIBLE
+            container.visibility = if (visible) View.GONE else View.VISIBLE
+            binding.btnToggleLogs.text = if (visible) getString(R.string.show_logs) else getString(R.string.hide_logs)
+        }
+
         if (AppPreferences.reopenSettingsDialogAfterRecreate) {
             AppPreferences.reopenSettingsDialogAfterRecreate = false
             floatingMenuButton.showSettingsDialog()
@@ -73,6 +82,25 @@ class MainActivity : AppCompatActivity() {
         binding.retryConsentButton.setOnClickListener {
             binding.retryConsentButton.visibility = android.view.View.GONE
             showConsentDialog()
+        }
+
+        // Observe the rolling bootstrap logs and render them into the on-screen console
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                BootstrapManager.logs.collect { lines ->
+                    val text = lines.joinToString("\n")
+                    binding.bootstrapLogText.text = text
+                    // auto-scroll to bottom
+                    binding.bootstrapLogScroll.post {
+                        binding.bootstrapLogScroll.fullScroll(View.FOCUS_DOWN)
+                    }
+                    // if there are logs and the status overlay is visible, reveal the log container
+                    if (lines.isNotEmpty() && binding.statusOverlay.visibility == android.view.View.VISIBLE) {
+                        binding.bootstrapLogContainer.visibility = android.view.View.VISIBLE
+                        binding.btnToggleLogs.text = getString(R.string.hide_logs)
+                    }
+                }
+            }
         }
 
         if (hasConsent()) {
