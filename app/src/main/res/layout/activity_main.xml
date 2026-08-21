@@ -69,6 +69,45 @@
                     android:text="@string/consent_retry"
                     android:visibility="gone" />
 
+                <!-- START: bootstrap logs area -->
+                <LinearLayout
+                    android:id="@+id/bootstrapLogContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:padding="8dp">
+
+                    <Button
+                        android:id="@+id/btnToggleLogs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/show_logs" />
+
+                    <ScrollView
+                        android:id="@+id/bootstrapLogScroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:overScrollMode="always"
+                        android:visibility="visible"
+                        android:fillViewport="false">
+
+                        <TextView
+                            android:id="@+id/bootstrapLogText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:typeface="monospace"
+                            android:textColor="?attr/colorKeyFg"
+                            android:lineSpacingExtra="2dp"
+                            android:padding="4dp" />
+                    </ScrollView>
+
+                </LinearLayout>
+                <!-- END: bootstrap logs area -->
+
             </LinearLayout>
 
         </FrameLayout>
@@ -118,4 +157,3 @@
         android:padding="10dp" />
 
 </FrameLayout>
-
