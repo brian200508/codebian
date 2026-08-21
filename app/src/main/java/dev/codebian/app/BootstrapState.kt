@@ -46,7 +46,26 @@ object BootstrapManager {
     private val _state = MutableStateFlow<BootstrapState>(BootstrapState.Idle)
     val state: StateFlow<BootstrapState> = _state
 
+    // Keep an in-memory rolling log of recent bootstrap lines for the UI.
+    private const val LOG_LIMIT = 500
+    private val _logs = MutableStateFlow<List<String>>(emptyList())
+    val logs: StateFlow<List<String>> = _logs
+
     fun update(newState: BootstrapState) {
         _state.value = newState
+    }
+
+    fun appendLog(line: String) {
+        val appended = (_logs.value + line).takeLast(LOG_LIMIT)
+        _logs.value = appended
+    }
+
+    fun appendLogs(lines: List<String>) {
+        val appended = (_logs.value + lines).takeLast(LOG_LIMIT)
+        _logs.value = appended
+    }
+
+    fun clearLogs() {
+        _logs.value = emptyList()
     }
 }
