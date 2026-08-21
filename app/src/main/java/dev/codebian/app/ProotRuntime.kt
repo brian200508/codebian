@@ -90,7 +90,10 @@ class ProotRuntime(private val context: Context) {
         extraBinds: List<Pair<String, String>> = emptyList(),
     ): Int {
         val process = buildProcess(command, extraEnv, runAsUser, extraBinds)
-        process.inputStream.bufferedReader().forEachLine { Log.i("CoDebianProot", it) }
+        process.inputStream.bufferedReader().forEachLine { line ->
+            Log.i("CoDebianProot", line)
+            BootstrapManager.appendLog(line)
+        }
         return process.waitFor()
     }
 
@@ -121,7 +124,10 @@ class ProotRuntime(private val context: Context) {
             // plain Thread it would otherwise crash the whole app process --
             // so swallow it instead of letting it propagate.
             try {
-                process.inputStream.bufferedReader().forEachLine { Log.i("CoDebianCodeServer", it) }
+                process.inputStream.bufferedReader().forEachLine { line ->
+                    Log.i("CoDebianCodeServer", line)
+                    BootstrapManager.appendLog(line)
+                }
             } catch (_: java.io.IOException) {
                 // Expected when the process is intentionally destroyed while this thread is blocked on read().
             }
