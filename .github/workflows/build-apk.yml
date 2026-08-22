@@ -85,7 +85,7 @@ jobs:
           installArgs=( "platforms;android-35" "build-tools;35.0.0" )
           maxRetries=3
           # Set JAVA_OPTS to include JAXB modules for Java 17 compatibility
-          export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base --add-opens java.base/java.lang=ALL-UNNAMED"
+          export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base,java.xml.bind"
           for i in $(seq 1 $maxRetries); do
             if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
               break
