@@ -87,6 +87,7 @@ jobs:
           # Clear problematic Java options and use a clean environment for sdkmanager
           unset _JAVA_OPTIONS
           unset JAVA_TOOL_OPTIONS
+          export _JAVA_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base"
           for i in $(seq 1 $maxRetries); do
             if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
               break
