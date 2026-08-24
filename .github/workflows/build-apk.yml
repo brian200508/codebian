@@ -50,7 +50,7 @@ jobs:
           java-version: '11'
 
       - name: Set up Android SDK and install components
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v2
         with:
           components: |
             platforms;android-35
