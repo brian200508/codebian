@@ -87,9 +87,8 @@ jobs:
           # Clear problematic Java options and use a clean environment for sdkmanager
           unset _JAVA_OPTIONS
           unset JAVA_TOOL_OPTIONS
-          export _JAVA_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions"
-          # export _JAVA_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base"
-          # export _JAVA_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base,java.xml.bind,java.base --add-exports java.base/sun.nio.ch=ALL-UNNAMED"
+          export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.base,java.xml.bind"
+          export _JAVA_OPTIONS="$JAVA_OPTS"
           for i in $(seq 1 $maxRetries); do
             if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
               break
