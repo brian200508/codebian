@@ -55,7 +55,7 @@ jobs:
           components: |
             platforms;android-35
             build-tools;35.0.0
-            cmdline-tools;latest
+            cmdline-tools;9.0
 
       - name: Debug Android SDK location
         shell: bash
