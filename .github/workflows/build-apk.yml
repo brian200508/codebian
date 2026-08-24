@@ -47,7 +47,7 @@ jobs:
         uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '21'
 
       - name: Set up Android SDK and install components
         uses: android-actions/setup-android@v3
