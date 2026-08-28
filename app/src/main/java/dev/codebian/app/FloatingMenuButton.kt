@@ -163,17 +163,27 @@ class FloatingMenuButton(
      * else. SSH Password is intentionally not included here now that it
      * can be a custom user-chosen value (managed via Config > Remote
      * Access instead of a one-tap "copy the auto-generated one" action).
-     * Unlike the Settings dialog's own copies of these actions,
-     * Fullscreen/Wake lock here toggle and persist immediately (there's no
-     * Save step for a one-tap popup action). Exit asks for confirmation
-     * first (see [confirmExit]) since it stops running servers and closes
-     * the app.
+     * Termux/SSH Command are only shown while SSH is enabled -- see
+     * below -- since both are no-ops (or actively misleading) with no
+     * sshd listening. Unlike the Settings dialog's own copies of these
+     * actions, Fullscreen/Wake lock here toggle and persist immediately
+     * (there's no Save step for a one-tap popup action). Exit asks for
+     * confirmation first (see [confirmExit]) since it stops running
+     * servers and closes the app.
      */
     private fun showQuickActionsMenu() {
         val popup = PopupMenu(activity, button)
         popup.menuInflater.inflate(R.menu.floating_menu_button_popup, popup.menu)
         popup.menu.findItem(R.id.quickMenuFullscreen).isChecked = AppPreferences.isFullscreenEnabled(activity)
         popup.menu.findItem(R.id.quickMenuWakeLock).isChecked = AppPreferences.isWakeLockEnabled(activity)
+        // Termux/SSH Command only make sense once SSH is actually running
+        // (there's nothing listening to connect to otherwise) -- show a
+        // one-tap hint that jumps to Config > Remote Access instead, so
+        // the user isn't left guessing why the command didn't work.
+        val sshEnabled = AppPreferences.isSshServerEnabled(activity)
+        popup.menu.findItem(R.id.quickMenuTermux).isVisible = sshEnabled
+        popup.menu.findItem(R.id.quickMenuSshCommand).isVisible = sshEnabled
+        popup.menu.findItem(R.id.quickMenuSshDisabledHint).isVisible = !sshEnabled
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.quickMenuTermux -> {
@@ -182,6 +192,10 @@ class FloatingMenuButton(
                 }
                 R.id.quickMenuSshCommand -> {
                     RemoteAccessActions.copySshCommand(activity)
+                    true
+                }
+                R.id.quickMenuSshDisabledHint -> {
+                    showSettingsDialog()
                     true
                 }
                 R.id.quickMenuFullscreen -> {

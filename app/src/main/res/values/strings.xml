@@ -136,6 +136,7 @@
     <string name="quick_menu_termux">Termux</string>
     <string name="quick_menu_ssh_password">SSH Password</string>
     <string name="quick_menu_ssh_command">SSH Command</string>
+    <string name="quick_menu_ssh_disabled_hint">Enable SSH first (Config \u2192 Remote Access)</string>
     <string name="quick_menu_fullscreen">Fullscreen</string>
     <string name="quick_menu_wake_lock">Wake Lock</string>
     <string name="quick_menu_files">Files</string>

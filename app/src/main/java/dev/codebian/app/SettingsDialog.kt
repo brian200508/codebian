@@ -93,6 +93,7 @@ class SettingsDialog(
         binding.sshServerSwitch.setOnCheckedChangeListener { _, checked ->
             AppPreferences.setSshServerEnabled(activity, checked)
             BootstrapService.requestSshSync(activity)
+            if (checked) autoRecopySshCommand()
             updateSshConnectionInfo()
         }
         binding.sshPortEditText.setOnFocusChangeListener { _, hasFocus ->
@@ -394,6 +395,7 @@ class SettingsDialog(
         binding.sshServerSwitch.setOnCheckedChangeListener { _, checked ->
             AppPreferences.setSshServerEnabled(activity, checked)
             BootstrapService.requestSshSync(activity)
+            if (checked) autoRecopySshCommand()
             updateSshConnectionInfo()
         }
         binding.mcpServerSwitch.setOnCheckedChangeListener { _, checked ->
@@ -464,8 +466,24 @@ class SettingsDialog(
         if (port != AppPreferences.getSshServerPort(activity)) {
             AppPreferences.setSshServerPort(activity, port)
             BootstrapService.requestSshSync(activity)
+            autoRecopySshCommand()
         }
         updateSshConnectionInfo()
+    }
+
+    /**
+     * Re-copies the current SSH command to the clipboard whenever SSH
+     * config that changes what it says (enabling SSH, or changing its
+     * port) is edited -- otherwise anything already sitting in the
+     * clipboard from an earlier "Copy SSH command" tap silently goes
+     * stale (wrong/no-longer-listening port), and the user has no visual
+     * cue that it did. A no-op while SSH is disabled, since there's
+     * nothing meaningful to copy.
+     */
+    private fun autoRecopySshCommand() {
+        if (AppPreferences.isSshServerEnabled(activity)) {
+            RemoteAccessActions.copySshCommand(activity)
+        }
     }
 
     private fun currentSftpPortFieldValue(): Int =

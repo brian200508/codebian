@@ -79,11 +79,25 @@
                     android:visibility="gone"
                     android:padding="8dp">
 
-                    <Button
-                        android:id="@+id/btnToggleLogs"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/show_logs" />
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnToggleLogs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/show_logs" />
+
+                        <Button
+                            android:id="@+id/btnCopyLogs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/copy_logs" />
+
+                    </LinearLayout>
 
                     <ScrollView
                         android:id="@+id/bootstrapLogScroll"

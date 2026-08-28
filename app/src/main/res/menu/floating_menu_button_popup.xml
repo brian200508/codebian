@@ -8,13 +8,21 @@
          item that opens the full Settings dialog for everything else
          (theme, keys bar, SSH port/password, etc.). SSH Password was
          dropped per the user's request now that it can be a custom
-         user-chosen value (change it via Config > Remote Access instead). -->
+         user-chosen value (change it via Config > Remote Access instead).
+         Termux/SSH Command are hidden (and quickMenuSshDisabledHint shown
+         in their place) whenever SSH is currently disabled, since both
+         actions are meaningless (there is nothing listening to connect
+         to) until it's turned on; see showQuickActionsMenu(). -->
     <item
         android:id="@+id/quickMenuTermux"
         android:title="@string/quick_menu_termux" />
     <item
         android:id="@+id/quickMenuSshCommand"
         android:title="@string/quick_menu_ssh_command" />
+    <item
+        android:id="@+id/quickMenuSshDisabledHint"
+        android:title="@string/quick_menu_ssh_disabled_hint"
+        android:visible="false" />
     <item
         android:id="@+id/quickMenuFullscreen"
         android:title="@string/quick_menu_fullscreen"

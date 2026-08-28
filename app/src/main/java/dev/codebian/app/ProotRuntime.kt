@@ -56,6 +56,40 @@ class ProotRuntime(private val context: Context) {
     private val prootLoader: File get() = File(nativeLibDir, "libproot-loader.so")
     private val prootLoader32: File get() = File(nativeLibDir, "libproot-loader32.so")
 
+    /**
+     * Directory holding symlinks that let the dynamic linker resolve
+     * proot's dependencies by their real SONAME (see [ensureLibShims]).
+     * Plain files/dirs under [Context.getFilesDir] are noexec on Android
+     * 10+, but that restriction is enforced on the filesystem backing the
+     * actual file data -- a *symlink* here just redirects the linker to
+     * the real, exec-capable file already sitting in [nativeLibDir], so it
+     * is safe to keep the symlinks themselves in ordinary private storage.
+     */
+    private val libShimDir: File get() = File(context.filesDir, "proot-lib-shims")
+
+    /**
+     * proot's `.so` links against `libtalloc.so.2` (its real SONAME) --
+     * but Android's native-library extraction only ever accepts files
+     * whose name literally ends in ".so" (see scripts/fetch-assets.ps1),
+     * so we can only ship the file itself as `libtalloc.so`. Without this,
+     * proot fails at startup with "library libtalloc.so.2 not found",
+     * which is exactly what happened here. This creates a `libtalloc.so.2`
+     * symlink pointing at that real file once (idempotent) so the dynamic
+     * linker can find it under the name proot actually asks for.
+     */
+    private fun ensureLibShims() {
+        libShimDir.mkdirs()
+        val talloc = File(nativeLibDir, "libtalloc.so")
+        val shim = File(libShimDir, "libtalloc.so.2")
+        if (talloc.exists() && !shim.exists()) {
+            try {
+                java.nio.file.Files.createSymbolicLink(shim.toPath(), talloc.toPath())
+            } catch (_: java.nio.file.FileAlreadyExistsException) {
+                // Lost a startup race with another call to buildProcess(); fine either way.
+            }
+        }
+    }
+
     fun extractRootfsTarget(): File = rootfsDir.apply { mkdirs() }
 
     /**
@@ -144,6 +178,7 @@ class ProotRuntime(private val context: Context) {
         check(prootBinary.exists()) {
             "proot binary missing at ${prootBinary.absolutePath} -- run scripts/fetch-assets.ps1 first"
         }
+        ensureLibShims()
         val prootArgs = mutableListOf(
             prootBinary.absolutePath,
             "-0",                       // fake root inside the rootfs
@@ -194,7 +229,9 @@ class ProotRuntime(private val context: Context) {
         // nativeLibraryDir to the dynamic linker's search path -- proot's
         // own shared-library dependencies (e.g. libtalloc.so, bundled
         // alongside it precisely because of this) need it set explicitly.
-        env["LD_LIBRARY_PATH"] = nativeLibDir.absolutePath
+        // libShimDir goes first so the libtalloc.so.2 symlink (see
+        // ensureLibShims) is found under proot's real SONAME lookup.
+        env["LD_LIBRARY_PATH"] = "${libShimDir.absolutePath}:${nativeLibDir.absolutePath}"
         if (prootLoader.exists()) env["PROOT_LOADER"] = prootLoader.absolutePath
         if (prootLoader32.exists()) env["PROOT_LOADER_32"] = prootLoader32.absolutePath
         env.putAll(extraEnv)

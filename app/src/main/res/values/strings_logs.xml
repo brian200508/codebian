@@ -2,4 +2,7 @@
 <resources>
     <string name="show_logs">Show logs</string>
     <string name="hide_logs">Hide logs</string>
+    <string name="copy_logs">Copy logs</string>
+    <string name="logs_copied_toast">Logs copied to clipboard</string>
+    <string name="logs_empty_toast">No logs to copy yet</string>
 </resources>

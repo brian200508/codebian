@@ -1,0 +1,33 @@
+{
+  "_comment": "Single source of truth for every pinned upstream version/URL CoDebian bundles or downloads. Bump values here only -- app/build.gradle.kts's :app:generateRemoteAssets task turns this into dev.codebian.app.RemoteAssets at build time, and scripts/fetch-assets.ps1 / scripts/fetch-assets.sh both read it directly, so there is exactly one place to update per release.",
+
+  "proot": {
+    "version": "5.1.107.92",
+    "debUrl": "https://grimler.se/termux-packages-24/pool/main/p/proot/proot_5.1.107.92_aarch64.deb"
+  },
+
+  "debianRootfs": {
+    "_comment": "Pulled from Docker Hub's registry (see DockerRegistryClient.kt / fetch-assets scripts) rather than a static tarball URL, so republishing the same tag keeps working without re-pinning a URL by hand.",
+    "repository": "library/debian",
+    "tag": "trixie",
+    "arch": "arm64",
+    "variant": "v8"
+  },
+
+  "codeServer": {
+    "_comment": "Exact GitHub release + its arm64 .deb asset digest, bundled into the APK at build time (see ensureCodeServerInstalled in BootstrapService.kt) so first-run install no longer depends on 'latest' upstream install.sh staying reachable. The in-app 'Update code-server' button still installs genuinely-latest online, on demand.",
+    "version": "4.135.0",
+    "debUrl": "https://github.com/coder/code-server/releases/download/v4.135.0/code-server_4.135.0_arm64.deb",
+    "sha256": "565e77cf74820d1cc3f473a17f41adb0703bbb07dc1243ded66a4740c595fdad"
+  },
+
+  "aptSnapshot": {
+    "_comment": "Pins the rootfs's /etc/apt sources to a fixed snapshot.debian.org timestamp (see pinAptToSnapshot in BootstrapService.kt) so git/python3/nodejs (and anything else apt-installed) keep resolving to the exact same packages forever, immune to the live 'trixie' suite moving on or a package being superseded -- snapshot.debian.org keeps every version indefinitely. Bump this occasionally (e.g. yearly) to pick up security fixes; it is not required to track 'today'.",
+    "timestamp": "20260801T000000Z"
+  },
+
+  "nodejs": {
+    "_comment": "NodeSource's setup_lts.x always resolves to whatever is current LTS *at curl time*, a moving target that can silently change behavior on a rebuild months later. Pinning an explicit major version series (NodeSource keeps setup_<N>.x working long after a newer LTS ships) removes that surprise; bump deliberately when a new LTS is desired.",
+    "majorVersion": "24"
+  }
+}

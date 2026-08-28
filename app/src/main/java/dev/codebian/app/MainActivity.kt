@@ -73,6 +73,22 @@ class MainActivity : AppCompatActivity() {
             container.visibility = if (visible) View.GONE else View.VISIBLE
             binding.btnToggleLogs.text = if (visible) getString(R.string.show_logs) else getString(R.string.hide_logs)
         }
+        // Copies the full rolling bootstrap log (not just what's currently
+        // scrolled into view) to the clipboard, for pasting into a bug
+        // report/chat when something like a failed apt install needs
+        // investigating -- added after the git-install-failure screenshot
+        // showed how tedious it was to manually retype/screenshot the log
+        // text instead.
+        binding.btnCopyLogs.setOnClickListener {
+            val text = binding.bootstrapLogText.text.toString()
+            if (text.isBlank()) {
+                android.widget.Toast.makeText(this, R.string.logs_empty_toast, android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                val clipboard = getSystemService(android.content.ClipboardManager::class.java)
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText("bootstrap logs", text))
+                android.widget.Toast.makeText(this, R.string.logs_copied_toast, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
 
         if (AppPreferences.reopenSettingsDialogAfterRecreate) {
             AppPreferences.reopenSettingsDialogAfterRecreate = false

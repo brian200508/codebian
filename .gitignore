@@ -6,3 +6,4 @@ local.properties
 .idea/
 app/src/main/jniLibs/*/libproot.so
 app/src/main/assets/rootfs-*.tar.*
+app/src/main/assets/code-server-*.deb
