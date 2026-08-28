@@ -47,15 +47,12 @@ jobs:
         uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
 
       - name: Set up Android SDK and install components
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v4
         with:
-          components: |
-            platforms;android-35
-            build-tools;35.0.0
-            cmdline-tools;9.0
+          packages: 'platforms;android-35 build-tools;35.0.0'
 
       - name: Debug Android SDK location
         shell: bash
@@ -66,36 +63,6 @@ jobs:
             echo "Listing SDK root (first 200 lines):"
             ls -R "${ANDROID_SDK_ROOT}" | sed -n '1,200p' || true
           fi
-
-      - name: Ensure cmdline-tools path + accept Android SDK licenses
-        shell: bash
-        run: |
-          set -euo pipefail
-          sdkRoot="${ANDROID_SDK_ROOT:?}"
-          echo "ANDROID_SDK_ROOT=$sdkRoot"
-          # find sdkmanager (search recursively)
-          sdk="$(find "$sdkRoot" -type f -name sdkmanager -print -quit || true)"
-          if [ -z "$sdk" ]; then
-            echo "sdkmanager not found under ANDROID_SDK_ROOT ($sdkRoot)" >&2
-            ls -R "$sdkRoot" | sed -n '1,200p'
-            exit 1
-          fi
-          echo "Found sdkmanager at: $sdk"
-          chmod +x "$sdk"
-          installArgs=( "platforms;android-35" "build-tools;35.0.0" )
-          maxRetries=3
-          for i in $(seq 1 $maxRetries); do
-            if "$sdk" --install "${installArgs[@]}" --sdk_root="$sdkRoot"; then
-              break
-            fi
-            echo "sdkmanager install failed (attempt $i of $maxRetries)"
-            if [ "$i" -eq "$maxRetries" ]; then
-              exit 1
-            fi
-            sleep $((5 * i))
-          done
-          # accept licenses (avoid failing on yes SIGPIPE) -- write one "y" then stop
-          printf "y\n" | "$sdk" --licenses --sdk_root="$sdkRoot" || true
 
       - name: Write local.properties (points at the CI-provisioned SDK)
         shell: bash
@@ -108,10 +75,10 @@ jobs:
           chmod +x ./scripts/fetch-assets.sh
           ./scripts/fetch-assets.sh
 
-      - name: Set up Gradle 8.11
+      - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.11"
+          gradle-version: "8.7"
 
       - name: Build APK
         shell: bash
