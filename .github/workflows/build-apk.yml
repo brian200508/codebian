@@ -80,21 +80,20 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Decode Keystore
+      - name: Restore Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
-
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=keystore.jks" >> android/key.properties
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
 
       - name: Build APK
         shell: bash
-        env:
+        env: |
           BUILD_TYPE: ${{ inputs.build_type }}
+          if [ "${BUILD_TYPE}" = "release" ]; then
+            ANDROID_KEYSTORE_PATH: app/release.jks
+            ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+            ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+            ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          fi
         run: |
           set -euo pipefail
           if [ "${BUILD_TYPE}" = "release" ]; then

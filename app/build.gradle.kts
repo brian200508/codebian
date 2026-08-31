@@ -94,12 +94,11 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            // Debug signing config for unsigned release builds (as per README)
-            storeFile = null
-            storePassword = null
-            keyAlias = null
-            keyPassword = null
+        release {
+            storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
+            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword System.getenv("ANDROID_KEY_PASSWORD")
         }
     }
 

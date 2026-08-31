@@ -146,7 +146,6 @@ ProotRuntime (execs the bundled proot binary against the rootfs)
 - `app/src/main/jniLibs/arm64-v8a/` is populated with a real `proot` binary
   + loader helpers, fetched via `scripts/fetch-assets.ps1` from Termux's own
   `.deb` (already proven to work under Android's SELinux policy).
-- No code-signing / release config yet; debug build only.
 - **Verified end-to-end on a real device** (Samsung Galaxy S25+, One UI):
   bootstrap, code-server editing with special keys, SSH/SFTP server, SAF
   file import/export/workspace sync, and Settings backup/restore have all
