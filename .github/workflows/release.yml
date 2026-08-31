@@ -1,0 +1,146 @@
+name: Build and Release APK
+
+# Manually triggered only ("user toggled") -- never runs on push/PR, so it
+# can't accidentally build/publish anything from an in-progress commit.
+# Trigger it from the Actions tab -> "Build APK" -> "Run workflow".
+on:
+  push:
+    t*gs:
+      - "v*"
+        build_type:
+        description: "Build variant"
+        required: true
+        default: release
+        type: choice
+        options:
+          - release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repo debug - list files and check for gradlew
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "PWD: $(pwd)"
+          echo "Top-level files:"
+          ls -la
+          echo "Git-tracked gradlew files (if any):"
+          git ls-files | grep -E '(^|/)gradlew$' || true
+
+      - name: Grant execute permission for gradlew if present
+        shell: bash
+        run: |
+          if [ -f ./gradlew ]; then
+            echo "Found root ./gradlew - making executable"
+            chmod +x ./gradlew
+          else
+            echo "./gradlew not found at repo root"
+          fi
+
+      - name: Set Up Java
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK and install components
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0'
+
+      - name: Debug Android SDK location
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-<unset>}"
+          if [ -n "${ANDROID_SDK_ROOT:-}" ]; then
+            echo "Listing SDK root (first 200 lines):"
+            ls -R "${ANDROID_SDK_ROOT}" | sed -n '1,200p' || true
+          fi
+
+      - name: Write local.properties (points at the CI-provisioned SDK)
+        shell: bash
+        run: |
+          echo "sdk.dir=${ANDROID_SDK_ROOT}" > local.properties
+
+      - name: Fetch proot binaries (jniLibs)
+        shell: bash
+        run: |
+          chmod +x ./scripts/fetch-assets.sh
+          ./scripts/fetch-assets.sh
+
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.7"
+
+      - name: Restore Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
+
+      - name: Build APK
+        shell: bash
+        env: 
+          BUILD_TYPE: ${{ inputs.build_type }}
+          ANDROID_KEYSTORE_PATH: ${{ inputs.build_type == 'release' && 'release.jks' || null }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ inputs.build_type == 'release' && secrets.KEYSTORE_PASSWORD || null }}
+          ANDROID_KEY_ALIAS: ${{ inputs.build_type == 'release' && secrets.KEY_ALIAS || null }}
+          ANDROID_KEY_PASSWORD: ${{ inputs.build_type == 'release' && secrets.KEY_PASSWORD || null }}
+        run: |
+          set -euo pipefail
+          if [ "${BUILD_TYPE}" = "release" ]; then
+            task="assembleRelease"
+          else
+            task="assembleDebug"
+          fi
+
+          # Determine which Gradle command to run:
+          # 1) prefer ./gradlew at repo root (and ensure executable)
+          # 2) search repo for a gradlew file (subdirectory) and run that
+          # 3) fall back to 'gradle' (provided by gradle/actions/setup-gradle)
+          if [ -x ./gradlew ]; then
+            echo "Using root ./gradlew"
+            GRADLE_CMD="./gradlew"
+          else
+            echo "Root ./gradlew not executable or missing, searching repository..."
+            gpath="$(git ls-files | grep -E '(^|/)gradlew$' | head -n1 || true)"
+            if [ -n "$gpath" ]; then
+              echo "Found gradlew at: $gpath"
+              chmod +x "$gpath"
+              # ensure we run from repository root even if wrapper is in subdir
+              GRADLE_CMD="./$gpath"
+            else
+              echo "No gradlew found in repo; falling back to 'gradle' from setup-gradle"
+              GRADLE_CMD="gradle"
+            fi
+          fi
+
+          echo "Running: $GRADLE_CMD $task"
+          $GRADLE_CMD "$task" --no-daemon --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codebian-${{ inputs.build_type }}-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            app/build/outputs/apk/release/*.apk
+
+
+          
+          
+
