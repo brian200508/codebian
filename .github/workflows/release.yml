@@ -84,10 +84,10 @@ jobs:
         shell: bash
         env: 
           BUILD_TYPE: release
-          ANDROID_KEYSTORE_PATH: release.jks
-          ANDROID_KEYSTORE_PASSWORD: secrets.KEYSTORE_PASSWORD
-          ANDROID_KEY_ALIAS: secrets.KEY_ALIAS
-          ANDROID_KEY_PASSWORD: secrets.KEY_PASSWORD
+          ANDROID_KEYSTORE_PATH: ${{ 'release.jks' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
           if [ "${BUILD_TYPE}" = "release" ]; then
@@ -123,7 +123,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: codebian-${{ inputs.build_type }}-apk
+          name: codebian-${{ github.ref_name }}-apk
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
 
