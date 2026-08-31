@@ -88,10 +88,10 @@ jobs:
         shell: bash
         env: 
           BUILD_TYPE: ${{ inputs.build_type }}
-          ANDROID_KEYSTORE_PATH: ${{ inputs.build_type == "release" && "app/release.jks" || null }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ inputs.build_type == "release" && secrets.KEYSTORE_PASSWORD || null }}
-          ANDROID_KEY_ALIAS: ${{ inputs.build_type == "release" && secrets.KEY_ALIAS || null }}
-          ANDROID_KEY_PASSWORD: ${{ inputs.build_type == "release" && secrets.KEY_PASSWORD || null }}
+          ANDROID_KEYSTORE_PATH: ${{ inputs.build_type == 'release' && 'app/release.jks' || null }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ inputs.build_type == 'release' && secrets.KEYSTORE_PASSWORD || null }}
+          ANDROID_KEY_ALIAS: ${{ inputs.build_type == 'release' && secrets.KEY_ALIAS || null }}
+          ANDROID_KEY_PASSWORD: ${{ inputs.build_type == 'release' && secrets.KEY_PASSWORD || null }}
         run: |
           set -euo pipefail
           if [ "${BUILD_TYPE}" = "release" ]; then
