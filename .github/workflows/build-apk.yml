@@ -86,14 +86,12 @@ jobs:
 
       - name: Build APK
         shell: bash
-        env: |
+        env: 
           BUILD_TYPE: ${{ inputs.build_type }}
-          if [ "${BUILD_TYPE}" = "release" ]; then
-            ANDROID_KEYSTORE_PATH: app/release.jks
-            ANDROID_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-            ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-            ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          fi
+          ANDROID_KEYSTORE_PATH: ${{ "${BUILD_TYPE}" = "release" && "app/release.jks" || null }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ "${BUILD_TYPE}" = "release" && secrets.KEYSTORE_PASSWORD || null }}
+          ANDROID_KEY_ALIAS: ${{ "${BUILD_TYPE}" = "release" && secrets.KEY_ALIAS || null }}
+          ANDROID_KEY_PASSWORD: ${{ "${BUILD_TYPE}" = "release" && secrets.KEY_PASSWORD || null }}
         run: |
           set -euo pipefail
           if [ "${BUILD_TYPE}" = "release" ]; then
