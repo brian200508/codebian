@@ -95,10 +95,19 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
-            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")?.let { file(it) }
+            keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("ANDROID_KEY_ALIAS")
             keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+
+            if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+                storeFile = keystorePath
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            } else {
+                logger.lifecycle("⚠️ No release signing config found — skipping signing for this build.")
+            }
         }
     }
 
@@ -106,6 +115,9 @@ android {
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
+        }
+        getByName("debug") {
+            // Debug build uses default debug keystore
         }
     }
 
