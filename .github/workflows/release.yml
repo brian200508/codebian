@@ -7,13 +7,6 @@ on:
   push:
     tags:
       - "v*"
-        build_type:
-        description: "Build variant"
-        required: true
-        default: release
-        type: choice
-        options:
-          - release
 
 permissions:
   contents: write
@@ -90,7 +83,7 @@ jobs:
       - name: Build APK
         shell: bash
         env: 
-          BUILD_TYPE: ${{ inputs.build_type }}
+          BUILD_TYPE: release
           ANDROID_KEYSTORE_PATH: ${{ inputs.build_type == 'release' && 'release.jks' || null }}
           ANDROID_KEYSTORE_PASSWORD: ${{ inputs.build_type == 'release' && secrets.KEYSTORE_PASSWORD || null }}
           ANDROID_KEY_ALIAS: ${{ inputs.build_type == 'release' && secrets.KEY_ALIAS || null }}
