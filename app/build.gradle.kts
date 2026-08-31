@@ -95,18 +95,14 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")?.let { file(it) }
-            val keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-            val keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-            val keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
-
-            if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
-                storeFile = keystorePath
-                storePassword = keystorePassword
-                this.keyAlias = keyAlias
-                this.keyPassword = keyPassword
+            val keystorePathEnv = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (!keystorePathEnv.isNullOrBlank()) {
+                storeFile = file(keystorePathEnv)
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: ""
             } else {
-                logger.lifecycle("⚠️ No release signing config found — skipping signing for this build.")
+                logger.lifecycle("⚠️ ANDROID_KEYSTORE_PATH not set — skipping release signing.")
             }
         }
     }
@@ -117,7 +113,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
         getByName("debug") {
-            // Debug build uses default debug keystore
+            // Uses default debug keystore
         }
     }
 
