@@ -16,7 +16,7 @@
 
   "codeServer": {
     "_comment": "Exact GitHub release + its arm64 .deb asset digest, bundled into the APK at build time (see ensureCodeServerInstalled in BootstrapService.kt) so first-run install no longer depends on 'latest' upstream install.sh staying reachable. The in-app 'Update code-server' button still installs genuinely-latest online, on demand.",
-    "version": "4.135.0",
+    "version": "4.141.0",
     "debUrl": "https://github.com/coder/code-server/releases/download/v4.135.0/code-server_4.135.0_arm64.deb",
     "sha256": "565e77cf74820d1cc3f473a17f41adb0703bbb07dc1243ded66a4740c595fdad"
   },
