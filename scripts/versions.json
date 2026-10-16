@@ -2,7 +2,7 @@
   "_comment": "Single source of truth for every pinned upstream version/URL CoDebian bundles or downloads. Bump values here only -- app/build.gradle.kts's :app:generateRemoteAssets task turns this into dev.codebian.app.RemoteAssets at build time, and scripts/fetch-assets.ps1 / scripts/fetch-assets.sh both read it directly, so there is exactly one place to update per release.",
 
   "proot": {
-    "version": "5.1.107.92",
+    "version": "5.1.107.96",
     "debUrl": "https://grimler.se/termux-packages-24/pool/main/p/proot/proot_5.1.107.92_aarch64.deb"
   },
 
